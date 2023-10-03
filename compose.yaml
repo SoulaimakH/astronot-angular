@@ -1,7 +1,7 @@
 version: '3'
 services:
-  carweb:
-    container_name: car_web
+  astronot:
+    container_name: astronot
     build:
       context: .
       dockerfile: Dockerfile
