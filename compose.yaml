@@ -1,0 +1,9 @@
+version: '3'
+services:
+  carweb:
+    container_name: car_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 4200:80
