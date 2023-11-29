@@ -2,6 +2,7 @@ pipeline {
   agent any 
   tools{
     nodejs "node"
+    Terraform "terraform"
   }     
   stages{
 
@@ -47,20 +48,6 @@ pipeline {
          } 
         }
         
-        stage('Pull Latest Code') {
-    steps {
-          dir('build') {
-                   
-             sh 'git pull origin main' // Assuming 'main' is your target branch
-              
-          }
-              
-         } 
-         
-       
-    
-    }
-
         
         stage('Test'){
              steps{
@@ -80,33 +67,11 @@ pipeline {
         }
 
     
-         stage('build docker file'){
-         steps{
-             
-                   dir('build') {
-
-           sh "docker compose build"
-           sh "docker compose up -d"
-                       
-                   }
-              
-         } 
-        }
-        
+         
     
  
  
-  stage('Push to DockerHub') {
-            steps {
-                dir('build') {
-                    //sh "docker tag build-astronot fatmal/getting-started"
-                    //sh "docker push fatmal/getting-started"
-                    sh "docker login -u fatmal -p 'dckr_pat_8vM_F2qqZk_PUK-nauBIaXxJ1V8'"
-                    sh "docker tag build-astronot fatmal/jenkinstest:latest"
-                    sh "docker push fatmal/jenkinstest:latest"
-                    }
-                }
-            }
+ 
         
   }
 }
