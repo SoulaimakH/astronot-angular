@@ -30,7 +30,7 @@ resource "azurerm_container_app" "my_first_app" {
 
   template {
     container {
-      name   = "${var.prefix}-ca-${var.stage}"
+      name   = "p-ca-a"
       image  = "hello-world:latest"
       cpu    = 0.25
       memory = "0.5Gi"
