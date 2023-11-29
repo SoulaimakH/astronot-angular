@@ -57,7 +57,7 @@ resource "azurerm_container_app" "my_first_app" {
 
   template {
     container {
-      name   = "${var.prefix}-ca-${var.stage}"
+      name   = "fik3ad"
       image  = "fatmal/jenkinstest:latest"
       cpu    = 0.25
       memory = "0.5Gi"
