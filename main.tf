@@ -63,7 +63,7 @@ resource "azurerm_container_app" "my_first_app" {
       memory = "0.5Gi"
   }
 
-  tags = local.default_tags
+
 
 }
 }
