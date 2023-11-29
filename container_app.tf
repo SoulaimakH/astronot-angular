@@ -14,10 +14,7 @@ resource "azurerm_container_app" "my_first_app" {
   resource_group_name          = azurerm_resource_group.my_first_app.name
   revision_mode                = "Single"
 
-  registry {
-    server               = "docker.io"    
-  }
-
+ 
   ingress {
     allow_insecure_connections = false
     external_enabled           = true
@@ -36,6 +33,6 @@ resource "azurerm_container_app" "my_first_app" {
       memory = "0.5Gi"
   }
 
-  tags = local.default_tags
+  
 }
 }
