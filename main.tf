@@ -1,36 +1,109 @@
-resource "random_pet" "rg_name" {
-  prefix = var.resource_group_name_prefix
-}
+locals {
+  stack = "${var.app}-${var.env}-${var.location}"
 
-resource "azurerm_resource_group" "rg" {
-  name     = random_pet.rg_name.id
-  location = var.resource_group_location
-}
-
-resource "random_string" "container_name" {
-  length  = 25
-  lower   = true
-  upper   = false
-  special = false
-}
-
-resource "azurerm_container_group" "container" {
-  name                = "${var.container_group_name_prefix}-${random_string.container_name.result}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  ip_address_type     = "Public"
-  os_type             = "Linux"
-  restart_policy      = var.restart_policy
-
-  container {
-    name   = "${var.container_name_prefix}-${random_string.container_name.result}"
-    image  = var.image
-    cpu    = var.cpu_cores
-    memory = var.memory_in_gb
-
-    ports {
-      port     = var.port
-      protocol = "TCP"
-    }
+  default_tags = {
+    environment = var.env
+    owner       = "J.Son"
+    app         = var.app
   }
+
+}
+
+resource "azurerm_resource_group" "my_first_app" {
+  name     = "rg-${local.stack}"
+  location = var.region
+
+  tags = local.default_tags
+}
+
+resource "azurerm_log_analytics_workspace" "my_first_app" {
+  name                = "log-${local.stack}"
+  location            = azurerm_resource_group.my_first_app.location
+  resource_group_name = azurerm_resource_group.my_first_app.name
+
+  tags = local.default_tags
+}
+
+resource "azurerm_container_app_environment" "my_first_app" {
+  name                      = "cae-${local.stack}"
+  location                   = azurerm_resource_group.my_first_app.location
+  resource_group_name        = azurerm_resource_group.my_first_app.name
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.my_first_app.id
+
+  tags = local.default_tags
+}
+
+
+resource "azurerm_container_app" "my_first_app" {
+  name                         = "ca-${local.stack}"
+
+  container_app_environment_id = azurerm_container_app_environment.my_first_app.id
+  resource_group_name          = azurerm_resource_group.my_first_app.name
+  revision_mode                = "Single"
+
+  registry {
+    server               = "docker.io"    
+  }
+
+  ingress {
+    allow_insecure_connections = false
+    external_enabled           = true
+    target_port                = 80
+    traffic_weight {
+      percentage = 100
+    }
+
+  }
+
+  template {
+    container {
+      name   = "${var.prefix}-ca-${var.stage}"
+      image  = "fatmal/jenkinstest:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+  }
+
+  tags = local.default_tags
+
+}
+
+resource "azurerm_container_app" "my_first_app" {
+  name                         = "ca-${local.stack}"
+
+  container_app_environment_id = azurerm_container_app_environment.my_first_app.id
+  resource_group_name          = azurerm_resource_group.my_first_app.name
+  revision_mode                = "Single"
+
+  registry {
+    server               = "docker.io"
+    username             = "dockerIOUserName"
+    password_secret_name = "docker-io-pass"
+    
+  }
+
+  ingress {
+    allow_insecure_connections = false
+    external_enabled           = true
+    target_port                = 80
+    traffic_weight {
+      percentage = 100
+    }
+
+  }
+
+  template {
+    container {
+      name   = "${var.prefix}-ca-${var.stage}"
+      image  = "test/myapp"
+      cpu    = 0.25
+      memory = "0.5Gi"
+  }
+  
+  secret { 
+    name  = "docker-io-pass" 
+    value = "MyDockerIOPass" 
+  }
+
+  tags = local.default_tags
+
 }
