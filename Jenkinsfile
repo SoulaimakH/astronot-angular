@@ -13,7 +13,7 @@ pipeline {
     // Clones the repository from the current branch name
     
     steps{
-   
+   sh'terraform --version'
         echo 'Make the output directory'
     sh 'mkdir -p build'
     
