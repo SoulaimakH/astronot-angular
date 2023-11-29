@@ -37,5 +37,5 @@ resource "azurerm_container_app" "my_first_app" {
   }
 
   tags = local.default_tags
-
+}
 }
