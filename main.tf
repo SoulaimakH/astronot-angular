@@ -66,6 +66,7 @@ resource "azurerm_container_app" "my_first_app" {
   tags = local.default_tags
 
 }
+}
 
 resource "azurerm_container_app" "my_first_app" {
   name                         = "ca-${local.stack}"
@@ -105,5 +106,5 @@ resource "azurerm_container_app" "my_first_app" {
   }
 
   tags = local.default_tags
-
+  }
 }
