@@ -1,73 +1,36 @@
-provider "azurerm" {
-  features {}
+resource "random_pet" "rg_name" {
+  prefix = var.resource_group_name_prefix
 }
 
-# Create a resource group for the Angular app
-resource "azurerm_resource_group" "example" {
-  name     = "example-${random_string.example.result}"
-  location = "westeurope"
+resource "azurerm_resource_group" "rg" {
+  name     = random_pet.rg_name.id
+  location = var.resource_group_location
 }
 
-resource "random_string" "example" {
-  length  = 4 
+resource "random_string" "container_name" {
+  length  = 25
+  lower   = true
   upper   = false
   special = false
 }
 
-resource "azurerm_storage_account" "example" {
-  name                     = "example${random_string.example.result}"
-  location                 = azurerm_resource_group.example.location
-  resource_group_name      = azurerm_resource_group.example.name
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+resource "azurerm_container_group" "container" {
+  name                = "${var.container_group_name_prefix}-${random_string.container_name.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  ip_address_type     = "Public"
+  os_type             = "Linux"
+  restart_policy      = var.restart_policy
 
-  static_website {
-    error_404_document = "index.html"
-    index_document     = "index.html"
-  }
+  container {
+    name   = "${var.container_name_prefix}-${random_string.container_name.result}"
+    image  = var.image
+    cpu    = var.cpu_cores
+    memory = var.memory_in_gb
 
-}
-
-#resource "azurerm_storage_container" "web" {
-#  name                     = "$web"
-#  storage_account_name     = azurerm_storage_account.example.name
-#}
-
-resource "null_resource" "example" {
-  provisioner "local-exec" {
-    command = "az storage blob upload-batch --destination '$web' --source dist"
-    environment = {
-      AZURE_STORAGE_ACCOUNT = azurerm_storage_account.example.name
-      AZURE_STORAGE_KEY     = azurerm_storage_account.example.primary_access_key
+    ports {
+      port     = var.port
+      protocol = "TCP"
     }
   }
-  depends_on = [azurerm_storage_account.example]
-}
-
-resource "azurerm_cdn_profile" "example" {
-  name                = "example-cdn"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  sku                 = "Standard_Microsoft"
-}
-
-resource "azurerm_cdn_endpoint" "example" {
-  name                = "example-cdn-${random_string.example.result}"
-  profile_name        = azurerm_cdn_profile.example.name
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  origin_host_header  = basename(azurerm_storage_account.example.primary_web_endpoint)
-
-  origin {
-    name      = azurerm_storage_account.example.name
-    host_name = basename(azurerm_storage_account.example.primary_web_endpoint)
-  }
-}
-
-resource "azurerm_application_insights" "example" {
-  name                = "example-appinsights"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  application_type    = "web"
 }
