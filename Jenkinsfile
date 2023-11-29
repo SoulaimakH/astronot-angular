@@ -4,7 +4,9 @@ pipeline {
     nodejs "node"
   }     
   stages{
+
       
+    
        stage('Clone') {
           
     // Clones the repository from the current branch name
@@ -64,7 +66,20 @@ pipeline {
              steps{
             sh "echo 'test'"}
         }
-        
+
+    
+    stage('Terraform init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        stage('Terraform apply') {
+            steps {
+                sh 'terraform apply --auto-approve'
+            }
+        }
+
+    
          stage('build docker file'){
          steps{
              
