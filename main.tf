@@ -1,25 +1,46 @@
-locals {
-  stack = "${var.app}-${var.env}-${var.location}"
+provider "azurerm" {
+   features {}
+}
 
-  default_tags = {
-    environment = var.env
-    owner       = "J.Son"
-    app         = var.app
+resource "azurerm_resource_group" "example" {
+  name     = "aci-example-rg"
+  location = "East US"
+}
+
+resource "azurerm_container_group" "example" {
+  name                = "aci-example-container-group"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  os_type             = "Linux"
+
+  container {
+    name   = "example-container"
+    image  = "fatmal/jenkinstest:latest"  # Use the desired Docker image
+    cpu    = "0.5"
+    memory = "1.5"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
   }
 
+  tags = {
+    environment = "testing"
+  }
 }
 
-resource "azurerm_resource_group" "my_first_app" {
-  name     = "rg-${local.stack}"
-  location = var.region
+resource "azurerm_public_ip" "example" {
+  name                = "aci-example-public-ip"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  allocation_method   = "Static"
 
-  tags = local.default_tags
+  tags = {
+    environment = "testing"
+  }
 }
 
-resource "azurerm_log_analytics_workspace" "my_first_app" {
-  name                = "log-${local.stack}"
-  location            = azurerm_resource_group.my_first_app.location
-  resource_group_name = azurerm_resource_group.my_first_app.name
-
-  tags = local.default_tags
+output "public_ip_address" {
+  value = azurerm_container_group.example.ip_address
 }
