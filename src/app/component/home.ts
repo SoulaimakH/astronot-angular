@@ -7,7 +7,7 @@ import { BlogService } from '../services/blog.service';
   templateUrl: '../view/home.html'
 })
 export class Home implements OnInit {
-  welcome = 'Welcome to Astronot Angular';
+  welcome = 'Welcome to Astronot Angular version 2';
   desc = 'Build your fast single page app website with astronot angular.';
   btn ='Get Started';
   btnurl ='/blog';
