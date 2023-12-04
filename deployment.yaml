@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monappdeployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: monapp
+  template:
+    metadata:
+      labels:
+        app: monapp
+    spec:
+      containers:
+        - name: kubernginxwp
+          image: wordpress:latest # Utilisez le nom de l'image et le tag que vous avez définis lors de la construction de l'image
+          ports:
+            - containerPort: 80 # Port sur lequel l'application écoute à l'intérieur du conteneur
