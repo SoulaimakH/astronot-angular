@@ -1,5 +1,5 @@
 # nginx state for serving content
-FROM nginx:alpine
+FROM nginx:1.25.4-alpine3.18
 # Set working directory to nginx asset directory
 WORKDIR /usr/share/nginx/html
 # Remove default nginx static assets
